@@ -9,6 +9,8 @@ class Menu extends Phaser.Scene {
         this.load.image('spaceship', './assets/spaceship.png')
         this.load.image('starfield', './assets/starfield.png')
         this.load.image('spaceship', './assets/spaceship.png')
+        this.load.image('superspaceship', './assets/superspaceship.png')
+        this.load.image('debris', './assets/debris.png')
         this.load.spritesheet('explosion', './assets/explosion.png', {
             frameWidth: 32,
             frameHeight: 32,
@@ -57,7 +59,9 @@ class Menu extends Phaser.Scene {
           // easy mode
           game.settings = {
             spaceshipSpeed: 3,
-            gameTimer: 60000    
+            gameTimer: 30000,
+            timeBonus: 1000,
+            timePenalty: 5000      
           }
           this.sound.play('sfx-select')
           this.scene.start('playScene')    
@@ -66,7 +70,9 @@ class Menu extends Phaser.Scene {
           // hard mode
           game.settings = {
             spaceshipSpeed: 4,
-            gameTimer: 45000    
+            gameTimer: 20000,
+            timeBonus: 100,
+            timePenalty: 10000    
           }
           this.sound.play('sfx-select')
           this.scene.start('playScene')    

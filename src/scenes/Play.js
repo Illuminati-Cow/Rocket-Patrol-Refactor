@@ -9,7 +9,7 @@ class Play extends Phaser.Scene {
         this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0)
         this.bgScrollSpeed = config.width / 120
         // add spaceships (x3)
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'spaceship', 0, 30).setOrigin(0, 0)
+        this.ship01 = new SuperSpaceship(this, game.config.width + borderUISize*6, borderUISize*5, 'superspaceship', 0, 50).setOrigin(0, 0)
         this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*4 + borderPadding * 6, 'spaceship', 0, 20).setOrigin(0,0)
         this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*6, 'spaceship', 0, 10).setOrigin(0,0)
         // Player Rocket
@@ -26,6 +26,7 @@ class Play extends Phaser.Scene {
         keyRESET = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT)
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
+        this.input.on('pointerdown', this.p1Rocket.fire, this.p1Rocket)
         this.p1Score = 0
         this.gameOver = false
         // display score
@@ -43,15 +44,19 @@ class Play extends Phaser.Scene {
         }
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig)
         // 60-second play clock
-        scoreConfig.fixedWidth = 0
-        this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5)
-            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← for Menu', scoreConfig).setOrigin(0.5)
-            this.gameOver = true
-        }, null, this)
+        this.date = new Date()
+        this.time = {
+            deltaTime: 0,
+            lastFrameTime: this.date.getTime(),
+            timeLeft: game.settings.gameTimer
+        }
     }
 
     update() {
+        this.timerUpdate()
+        if (this.time.timeLeft <= 0) {
+            this.endGame()
+        }
         // check key input for restart or menu
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keyRESET)) {
             this.scene.restart()
@@ -108,6 +113,38 @@ class Play extends Phaser.Scene {
         // score add and text update
         this.p1Score += ship.points
         this.scoreLeft.text = this.p1Score
+        this.time.timeLeft += game.settings.timeBonus
         this.sound.play('sfx-explosion')       
+        let particles = this.add.particles(ship.x, ship.y, 'debris', {
+            speed: 100,
+            lifespan: 200,
+            radial: true
+        })
+        this.time.delayedCall(1000, particles.destroy, [], this)
+    }
+
+    endGame() {
+        let scoreConfig = {
+            fontFamily: 'Courier',
+            fontSize: '28px',
+            backgroundColor: '#F3B141',
+            color: '#843605',
+            align: 'right',
+            padding: {
+            top: 5,
+            bottom: 5,
+            },
+            fixedWidth: 0
+        }
+        this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5)
+        this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← for Menu', scoreConfig).setOrigin(0.5)
+        this.gameOver = true
+    }
+
+    timerUpdate() {
+        this.time.lastFrameTime = this.date.getTime()
+        this.date = new Date()
+        this.time.deltaTime = this.date.getTime() - this.time.lastFrameTime
+        this.time.timeLeft -= this.time.deltaTime
     }
 }
