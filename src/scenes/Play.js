@@ -45,16 +45,37 @@ class Play extends Phaser.Scene {
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig)
         // 60-second play clock
         this.date = new Date()
-        this.time = {
+        this.timer = {
             deltaTime: 0,
             lastFrameTime: this.date.getTime(),
-            timeLeft: game.settings.gameTimer
+            timeLeft: game.settings.gameTimer,
+            timeLeftS: game.settings.gameTimer / 1000
         }
+        // Added a time left counter so player can see time added and subtracted
+        this.timeLeft = this.add.text(game.config.width - borderUISize - borderPadding, borderUISize + borderPadding*2, this.timer.timeLeftS, scoreConfig).setOrigin(1, 0)
+        // Create a particle system manager to create explosions   
+        this.explosionEmitter = new Phaser.GameObjects.Particles.ParticleEmitter(this, 100, 100, 'debris', {
+            speed: 500,
+            lifespan: 100,
+            scale: {min: 0.3, max:1.25},
+            rotation: {
+                onUpdate: (particle, key, t, value) => {
+                    value += 1
+                    return value;
+                }
+            },
+            radial: true,
+            
+        })
+        this.explosionEmitter.emitting = false
+        this.explosionEmitter.visible = false
+        this.add.existing(this.explosionEmitter)
     }
 
     update() {
-        this.timerUpdate()
-        if (this.time.timeLeft <= 0) {
+        if (!this.gameOver)
+            this.timerUpdate()
+        if (this.timer.timeLeft <= 0) {
             this.endGame()
         }
         // check key input for restart or menu
@@ -113,14 +134,9 @@ class Play extends Phaser.Scene {
         // score add and text update
         this.p1Score += ship.points
         this.scoreLeft.text = this.p1Score
-        this.time.timeLeft += game.settings.timeBonus
+        this.timer.timeLeft += game.settings.timeBonus
         this.sound.play('sfx-explosion')       
-        let particles = this.add.particles(ship.x, ship.y, 'debris', {
-            speed: 100,
-            lifespan: 200,
-            radial: true
-        })
-        this.time.delayedCall(1000, particles.destroy, [], this)
+        this.createExplosion(ship.x + ship.width / 2 - 10, ship.y + ship.height/2 - 10)
     }
 
     endGame() {
@@ -142,9 +158,23 @@ class Play extends Phaser.Scene {
     }
 
     timerUpdate() {
-        this.time.lastFrameTime = this.date.getTime()
+        this.timer.lastFrameTime = this.date.getTime()
         this.date = new Date()
-        this.time.deltaTime = this.date.getTime() - this.time.lastFrameTime
-        this.time.timeLeft -= this.time.deltaTime
+        this.timer.deltaTime = this.date.getTime() - this.timer.lastFrameTime
+        this.timer.timeLeft -= this.timer.deltaTime
+        this.timer.timeLeftS =  Math.max((Math.floor(this.timer.timeLeft / 100) / 10), 0)
+        this.timeLeft.text = this.timer.timeLeftS
+    }
+
+    createExplosion(x, y) {
+        // Advice to use one emitter and move it:
+        // https://phaser.discourse.group/t/how-to-manage-lots-of-particle-emitter-managers/12654/4
+        this.explosionEmitter.setPosition(x, y, 0)
+        this.explosionEmitter.emitting = true
+        this.explosionEmitter.visible = true
+        this.time.delayedCall(250, () => {
+            this.explosionEmitter.visible = false;
+            this.explosionEmitter.emitting = false;
+        }, [], this)
     }
 }
