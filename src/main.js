@@ -3,11 +3,11 @@
     Rocket Patrol: Ultimate Anniversary Edition
     Time to complete: 5-6 Hours
     Features:
-        New Spaceship:
+        New Spaceship (5 points):
             Trivial to implement as I had already created a second ship asset
             due to oringally thinking there was a player sprite. Tried to inherit
             from Spaceship but was easier to just copy code and tweak slightly.
-        Time Bonus / Penalty for Hits or Misses:
+        Time Bonus / Penalty for Hits or Misses (5 points):
             Took a couple hours to figure out and I had to consult JS documentation
             and ask Chat GPT to explain how JS time worked. Had a lot of syntax issues
             that of course didnt raise errors because they basically dont exist in JS.
@@ -15,14 +15,14 @@
             JS's classes that add properties so easily it can be done on accident made
             debugging a nightmare since I didn't expect a naming issue to be so sneaky.
             I implemented this using JS's Date and thats pretty much it.
-        Mouse Control:
+        Mouse Control (5 points):
             The hardest part of implementing this was figuring out how to get the mouse
             pointers position. The naming conventions for Phaser are quite odd and I do
             not like how they organize their classes as it feels like I'm always wrong when
             predicting how to access a basic feature. I set the x position of the rocket
             to the x position of the mouse and then clamped the position to the screen
             using a min and max function (since apparently the Math library doesn't have one?)
-        Particle Explosions:
+        Particle Explosions (5 points):
             This took the most time by far and was quite confusing. I wish the Phaser docs included
             in-line examples or explained how to create the object similar to Unity or Godot but
             as this is a much smaller project I can't complain too much. I ran into weird issues when
