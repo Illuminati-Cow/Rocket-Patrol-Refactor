@@ -29,7 +29,13 @@
             restarting the game after deleting particle emitters despite using the methods that appeared
             to be correct. Instead I used one particle emitter and then move it around to create
             explosions. I hide the emitter using a Phaser timer callback function that makes
-            it invisible and stop emitting. 
+            it invisible and stop emitting.
+            
+            Credits:
+            // Advice to use one emitter and move it:
+            // https://phaser.discourse.group/t/how-to-manage-lots-of-particle-emitter-managers/12654/4
+            // Chat GPT for general coding and git refreshers - no actual code
+            // jsfxr for sound effects
 */
 
 let config = {
